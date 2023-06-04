@@ -48,8 +48,8 @@ def lower_value(value):  # Faz a separação da notas de baixo valor, de 20 a 2
 
     # Impressão da divisão
     print("\n-- Distribuição de notas de menor valor:")
-    for nota in bills:
-        print(f"-   {nota}")
+    for bill in bills:
+        print(f"-   {bill}")
     return
 
 
@@ -94,8 +94,8 @@ def highest_value(value):
 
     # Impressão da divisão
     print("\n-- Distribuição de notas de maior valor:")
-    for nota in bill:
-        print(f"-   {nota}")
+    for bill in bill:
+        print(f"-   {bill}")
     return
 
 
@@ -113,7 +113,6 @@ def half_helper(value, aux):  # Faz a separação da notas meio a meio
         bill_100 = int(value // 100)
         value %= 100
 
-        # Notas de R$50
         if value == 53:
             bill_20 = 2
             bill_5 = 1
@@ -222,8 +221,8 @@ def half_value(value):  # Essa função auxilia a chamada da função half_helpe
         print(f"-    {nota}")
 
     print(f"\n-   {half} reais em notas de menor valor:")
-    for nota in bills_2:
-        print(f"-    {nota}")
+    for bill in bills_2:
+        print(f"-    {bill}")
     return
 
 
@@ -253,6 +252,7 @@ def redirector(loan_amount, aux):
 # Possui a funcionalidade de mostrar ao contribuinte a opções de divisão de notas e permitir que ele escolha e troque de escolha
 def choose_bill(loan_amount):
     global aux
+    aux = ''
     clear_console()
 
     # Impressão das opções
@@ -304,31 +304,31 @@ def choose_bill(loan_amount):
 
 
 # Possui a funcionalidade de receber a data de admissão e verificar se a data inserida não possui um valor futuro
-def obter_data():
+def get_date():
 
     # Loop de verificação
     while True:
-        data_str = input("- Digite a data de admissão (formato: dd/mm/aaaa): ")
+        date_str = input("- Digite a data de admissão (formato: dd/mm/aaaa): ")
 
         try:
-            data = datetime.strptime(data_str, "%d/%m/%Y")
+            date = datetime.strptime(date_str, "%d/%m/%Y")
 
             # Verifica se a data atual é inferior a data inserida
-            if data > datetime.now():
-                print("Data futura inserida. Por favor, insira uma data válida.")
+            if date > datetime.now():
+                print("\nData futura inserida. Por favor, insira uma data válida.")
 
             # Se for válida retorna a data
             else:
-                return data
+                return date
         # E caso a data seja inválida, mostra a seguinte mensagem
         except ValueError:
-            print("Data inválida. Por favor, insira uma data no formato correto.")
+            print("\nData inválida. Por favor, insira uma data no formato correto.")
 
 
 # Possui a funcionalidade de verificar se o nome inserido pelo contribuinte possui apenas letras e espaços
-def verifica_string(string):
-    padrao = r'^[a-zA-ZÀ-ÿ\s]+$'
-    return re.match(padrao, string) is not None
+def check_string(string):
+    standard = r'^[a-zA-ZÀ-ÿ\s]+$'
+    return re.match(standard, string) is not None
 
 
 # Possui a funcionalidade de pegar os dados númericos do contribuinte, salário e valor do empréstimo
@@ -337,29 +337,32 @@ def get_value(type):
 
     # Verificação para mudar o texto que é impresso
     if type == 0:
-        text_aux = ['- Digite o salário atual do colaborador: ',
+        text_aux = ['- Digite o salário atual do colaborador:',
                     'Seu salário não pode ser negativo, por favor tente novamente;']
     else:
         text_aux = ['- Digite o valor do empréstimo desejado: ',
                     'O empréstimo não pode ter uma valor negativo, por favor tente novamente;']
 
     # Loop de verificação
-    current = -1
     while isinstance(current, str):
         try:
             current = int(input(text_aux[0]))
+            if current > 0:
+                return current
 
         # Caso o valor da variável current não seja int
-        except ValueError:
+        except:
 
             # Verificação se é do tipo string
             if isinstance(current, str):
                 print('\nValor inválido. Por favor, insira um número inteiro.')
-                value = input()
+                value = input(text_aux[0])
 
                 try:
                     # Transforma em int se o valor for numérico
                     value = int(value)
+                    if value > 0:
+                        return value
 
                 # Verifica se o valor é do tipo string
                 except:
@@ -372,15 +375,15 @@ def get_value(type):
             if isinstance(current, float):
                 print('Valor inválido. Por favor, insira um número inteiro.')
                 continue
-
+        current = -1
         # Loop que verifica se a var current é positiva
         while current < 0:
-            print(f'\n{text_aux[1]}')
+            print(f'\nValor inválido. Por favor, insira um número inteiro.')
 
             try:
-                current = int(input(text_aux[1]))
+                current = int(input(text_aux[0]))
             except:
-                print(text_aux[1])
+                print('\nValor inválido. Por favor, insira um número inteiro.')
                 value = input(text_aux[0])
                 try:
                     # Transforma em int se o valor for numérico
@@ -390,25 +393,62 @@ def get_value(type):
                 except:
                     # Verifica se o valor é do tipo string
                     if isinstance(value, str):
-                        print(text_aux[1])
                         continue
+
     return current
 
 
+def aux_fun(contributor_name, home_time, current_wage):
+    # Caso o tempo de casa seja superior a 5 anos
+    if home_time > 5:
+
+        # Chama a função get_value para pegar o valor do empréstimo
+        loan_amount = get_value(1)
+
+        # Verifica se o valor do empréstimo é até 2 vezes o salári atual do contribuinte e se é um valor par
+        if current_wage * 2 < loan_amount or loan_amount % 2 != 0:
+            print(
+                "- Agradecemos seu interesse, mas você não atende os requisitos mínimos do programa.")
+            return
+        # Chama a função de escolha de distribuição
+        choose_bill(loan_amount)
+        clear_console()
+
+        # Imprime os dados do contrinuinte
+        print('- Dados do Contribuinte: ')
+        print(f'-   Nome do contribuinte: {contributor_name}')
+        print(f'-   Tempo de casa: {home_time}')
+        print(f'-   Salário atual: {current_wage}')
+
+        print('\n- Dados do Empréstimo:')
+
+        # Chama o redirecionador denovo para que seja reimpressa a distribuiço de notas escolhida
+        redirector(loan_amount, aux)
+
+        print('\nDeseja refazer a simulação? (responda com sim ou nao)')
+        if input() == 'sim':
+            make_loan()
+        else:
+            print(
+                "\nPor favor, vá a uma de nossas agências parceiras para poder retirar o dinheiro.")
+    else:
+        print("\n- Não é possível realizar o empréstimo. Tempo de casa insuficiente.")
+
+
 # Função principal do sistema, é a primeira função a ser chamada e é nela que estão as primeria inserções
-def realizar_emprestimo():
+def make_loan():
     # Limpa a tela do console
     clear_console()
 
     contributor_name = input("- Digite o nome do colaborador: ")
 
     # Loop que verifica se o nome do contribuinte é válido
-    while verifica_string(contributor_name) == False:
-        print("Seu nome deve conter apenas letra, com ou sem acentos, e espaços, por favor tente novamente;")
+    while check_string(contributor_name) == False:
+        print("\nSeu nome deve conter apenas letra, com ou sem acentos, e espaços, por favor tente novamente;")
         contributor_name = input("- Digite o nome do colaborador: ")
 
     # Chama a função de obter data de admissão
-    admission_date = obter_data()
+    admission_date = get_date()
 
     # Chama a função get_value para pegar o valor do sálario atual
     current_wage = get_value(0)
@@ -419,40 +459,9 @@ def realizar_emprestimo():
     # Verifica se a data atual é anterior à data de admissão com base no mês e dia
     if current_date.month < admission_date.month or (current_date.month == admission_date.month and current_date.day < admission_date.day):
         home_time -= 1
+        aux_fun(contributor_name, home_time, current_wage)
+    else:
+        aux_fun(contributor_name, home_time, current_wage)
 
-        # Caso o tempo de casa seja superior a 5 anos
-        if home_time > 5:
 
-            # Chama a função get_value para pegar o valor do empréstimo
-            loan_amount = get_value(1)
-
-            # Verifica se o valor do empréstimo é até 2 vezes o salári atual do contribuinte e se é um valor par
-            if current_wage * 2 < loan_amount or loan_amount % 2 != 0:
-                print(
-                    "- Agradecemos seu interesse, mas você não atende os requisitos mínimos do programa.")
-                return
-            # Chama a função de escolha de distribuição
-            choose_bill(loan_amount)
-            clear_console()
-
-            #Imprime os dados do contrinuinte
-            print('- Dados do Contribuinte: ')
-            print(f'-   Nome do contribuinte: {contributor_name}')
-            print(f'-   Tempo de casa: {home_time}')
-            print(f'-   Salário atual: {current_wage}')
-
-            print('\n- Dados do Empréstimo:')
-            
-            #Chama o redirecionador denovo para que seja reimpressa a distribuiço de notas escolhida
-            redirector(loan_amount, aux)
-            
-            print('\nDeseja refazer a simulação? (responda com sim ou nao)')
-            if input() == 'sim':
-                realizar_emprestimo()
-            else:
-                print(
-                    "\nPor favor, vá a uma de nossas agências parceiras para poder retirar o dinheiro.")
-        else:
-            print("\n- Não é possível realizar o empréstimo. Tempo de casa insuficiente.")
-
-realizar_emprestimo()
+make_loan()
