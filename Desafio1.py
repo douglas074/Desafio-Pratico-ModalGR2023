@@ -19,7 +19,7 @@ def get_values(type):  # Função que recebe os valores de ambos arrays
         print("\nInforme os valores do segundo array: ")
 
     # Loop de entrada de dados
-    for i in range(5):
+    for i in range(20):
         value = ''
 
         # Loop que verifica se a var value é uma string, começa com valor string para poder entrar no loop
